@@ -14,6 +14,8 @@ dependencies:
   provider: ^6.1.5
   english_words: ^4.0.0
   flutter_svg: ^2.3.0
+  flutter_decorated_text: ^2.2.0
+  flutter_text_decorator: ^0.0.1
 
 dev_dependencies:
   flutter_test:

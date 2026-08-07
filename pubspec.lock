@@ -78,6 +78,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_decorated_text:
+    dependency: "direct main"
+    description:
+      name: flutter_decorated_text
+      sha256: "6917df81bacd0b4b52e6077cbcef1c9aab1f66ddeae5b942cfb49c867968a303"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -99,6 +107,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_text_decorator:
+    dependency: "direct main"
+    description:
+      name: flutter_text_decorator
+      sha256: be7f5c950439eb2ba3f288c43fab1ac1625302029329fb2ec70f88576255f8e3
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   http:
     dependency: transitive
     description:

@@ -1,6 +1,7 @@
 // main.dart
 import 'package:flutter/material.dart';
 import 'package:studyapp/social_button.dart';
+import 'package:flutter_text_decorator/flutter_text_decorator.dart';
 
 void main() {
   runApp(const StudyApp());
@@ -80,8 +81,8 @@ class Study extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.only(top: 30),
                 child: Text(
-                  'Login',
-                  style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 223, 223, 223)),
+                  'Bem-vindo ao Study App',
+                  style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 255, 217, 1)),
                 ),
               ),
               SizedBox(height: 50),
