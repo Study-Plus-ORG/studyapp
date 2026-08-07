@@ -1,4 +1,4 @@
-// paginainiciial.dart
+// paginainicial.dart
 import 'package:flutter/material.dart';
 
 

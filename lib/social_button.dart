@@ -21,6 +21,13 @@ class SocialButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton.icon(
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 20),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+          side: const BorderSide(color: Color.fromARGB(141, 233, 233, 233), width: 2),
+        ),
+      ),
       onPressed: onPressed,
       icon: SvgPicture.asset(
         'assets/svgs/$iconName.svg',

@@ -2,21 +2,51 @@
 import 'package:flutter/material.dart';
 import 'package:studyapp/social_button.dart';
 
-
 void main() {
   runApp(const StudyApp());
-
 }
+
 
 class StudyApp extends StatelessWidget {
   const StudyApp({super.key});
 
   @override
   Widget build(BuildContext  context) {
-    return const MaterialApp(
-      home: Study(),
+    return MaterialApp(
+      title: 'Study App',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 255, 251, 0)),
+      ),
+      home: const Study(),
       debugShowCheckedModeBanner: false,
+    );
+  }
+}
 
+class LoginField extends StatelessWidget {
+  final String hintText;
+  final bool isPasswordField;
+
+  const LoginField({super.key, required this.hintText, required this.isPasswordField});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: TextField(
+        obscureText: isPasswordField,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: const TextStyle(color: Colors.white54),
+          filled: true,
+          fillColor: const Color.fromARGB(255, 15, 56, 49),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -51,13 +81,30 @@ class Study extends StatelessWidget {
                 padding: EdgeInsets.only(top: 30),
                 child: Text(
                   'Login',
-                  style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 216, 216, 216)),
+                  style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 223, 223, 223)),
                 ),
               ),
-              const SizedBox(height: 50),
-              SocialButton(iconName: 'glogo', label: 'Login com Google', onPressed: () {}),
+              SizedBox(height: 50),
+              SocialButton(
+              iconName: 'glogo',
+              label: 'Login com Google',
+              onPressed: () {}),
+              SizedBox(height: 20),
+              SocialButton(
+              iconName: 'flogo',
+              label: 'Login com Facebook',
+              onPressed: () {}),
+              SizedBox(height: 15),
+              const Text(
+                'ou',
+                style: TextStyle(fontSize: 17,),
+              ),
+              SizedBox(height: 15),
+              LoginField(hintText: 'Email', isPasswordField: false),
+              SizedBox(height: 20),
+              LoginField(hintText: 'Senha', isPasswordField: true,),
+              SizedBox(height: 25),
             ],
-
           ),
         ),
       ),
