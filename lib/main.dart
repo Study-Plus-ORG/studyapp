@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:studyapp/social_button.dart';
 import 'package:flutter_text_decorator/flutter_text_decorator.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 void main() {
   runApp(const StudyApp());
 }
@@ -16,7 +16,9 @@ class StudyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Study App',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 255, 251, 0)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 6, 12, 68)),
+        textTheme: GoogleFonts.notoSerifDisplayTextTheme(),
+        
       ),
       home: const Study(),
       debugShowCheckedModeBanner: false,
@@ -27,8 +29,18 @@ class StudyApp extends StatelessWidget {
 class LoginField extends StatelessWidget {
   final String hintText;
   final bool isPasswordField;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
+  final VoidCallback? onPressed;
 
-  const LoginField({super.key, required this.hintText, required this.isPasswordField});
+  const LoginField({
+    super.key,
+    required this.hintText,
+    required this.isPasswordField,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +54,13 @@ class LoginField extends StatelessWidget {
           hintStyle: const TextStyle(color: Colors.white54),
           filled: true,
           fillColor: const Color.fromARGB(255, 15, 56, 49),
+          prefixIcon: prefixIcon,
+          suffixIcon: onPressed != null && suffixIcon != null
+              ? IconButton(
+                  icon: suffixIcon!,
+                  onPressed: onPressed,
+                )
+              : suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -51,8 +70,15 @@ class LoginField extends StatelessWidget {
     );
   }
 }
-class Study extends StatelessWidget {
+class Study extends StatefulWidget {
   const Study({super.key});
+
+  @override
+  State<Study> createState() => _StudyState();
+}
+
+class _StudyState extends State<Study> {
+  bool showPassword = false;
 
   @override
   Widget build(BuildContext  context) {
@@ -78,32 +104,45 @@ class Study extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 30),
+              Padding(
+                padding: const EdgeInsets.only(top: 30),
                 child: Text(
                   'Bem-vindo ao Study App',
-                  style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 255, 217, 1)),
+                  style: GoogleFonts.notoSerifDisplay(
+                    fontSize: 50,
+                    color: const Color.fromARGB(255, 228, 228, 228),
+                  ),
                 ),
               ),
               SizedBox(height: 50),
               SocialButton(
-              iconName: 'glogo',
+              iconName: 'google.svg',
               label: 'Login com Google',
-              onPressed: () {}),
+              onPressed: () {}, prefixIcon: null,),
               SizedBox(height: 20),
               SocialButton(
-              iconName: 'flogo',
+              iconName: 'facebook.svg',
               label: 'Login com Facebook',
-              onPressed: () {}),
+              onPressed: () {}, prefixIcon: null,),
               SizedBox(height: 15),
               const Text(
                 'ou',
                 style: TextStyle(fontSize: 17,),
               ),
               SizedBox(height: 15),
-              LoginField(hintText: 'Email', isPasswordField: false),
+              LoginField(hintText: 'Email', isPasswordField: false, prefixIcon: const Icon(Icons.email, color: Colors.white),),
               SizedBox(height: 20),
-              LoginField(hintText: 'Senha', isPasswordField: true,),
+              LoginField(
+                hintText: 'Senha',
+                isPasswordField: !showPassword,
+                prefixIcon: const Icon(Icons.lock, color: Colors.white),
+                suffixIcon: const Icon(Icons.remove_red_eye, color: Colors.white),
+                 onPressed: () {
+                  setState(() {
+                    showPassword = !showPassword;
+                  });
+                 },
+              ),
               SizedBox(height: 25),
             ],
           ),

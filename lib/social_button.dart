@@ -14,7 +14,7 @@ class SocialButton extends StatelessWidget {
     required this.iconName,
     required this.label,
     this.horizontalPadding = 70,
-    required this.onPressed,
+    required this.onPressed, required prefixIcon,
   });
 
 
@@ -30,7 +30,7 @@ class SocialButton extends StatelessWidget {
       ),
       onPressed: onPressed,
       icon: SvgPicture.asset(
-        'assets/svgs/$iconName.svg',
+        'assets/icons/$iconName.svg',
         width:25,
         colorFilter: const ColorFilter.mode(
           Colors.white,
