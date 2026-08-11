@@ -143,7 +143,28 @@ class _StudyState extends State<Study> {
                   });
                  },
               ),
-              SizedBox(height: 25),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+
+                });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 0, 26, 23),
+                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  )
+                ),
+                child: Text(
+                  'Entrar',
+                  style: GoogleFonts.notoSerifDisplay(
+                    fontSize: 20,
+                    color: const Color.fromARGB(255, 228, 228, 228),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

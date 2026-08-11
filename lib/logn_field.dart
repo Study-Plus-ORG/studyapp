@@ -11,8 +11,9 @@ final bool isPasswordField;
 
   @override 
   Widget build(BuildContext context) {
-    return ConstrainedBox(constraints: const BoxConstraints(maxWidth: 350),
-    child: TextFormField(
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 350),
+      child: TextFormField(
       style: const TextStyle(fontSize: 17),
       decoration: InputDecoration(
         contentPadding: EdgeInsets.all(27),
