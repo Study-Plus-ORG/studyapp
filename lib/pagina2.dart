@@ -1,8 +1,8 @@
 // pagina2.dart
 import 'package:flutter/material.dart';
 
-class SecondRoute extends StatelessWidget {
-  const SecondRoute({super.key});
+class Pagina2 extends StatelessWidget {
+  const Pagina2({super.key});
 
   @override
   Widget build(BuildContext context) {
