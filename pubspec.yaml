@@ -28,8 +28,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-<<<<<<< HEAD
+
     - assets/svgs/logo.svg
-=======
-    - svgs/
->>>>>>> 553b974c0141bf75204cdfa9d549b997d0db8283
+    - assets/svgs/
+

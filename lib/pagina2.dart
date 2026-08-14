@@ -25,19 +25,7 @@ class Pagina2 extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ElevatedButton(
-            //   onPressed: () {
-            //     Navigator.pop(context);
-            //   },
-            //   style: ElevatedButton.styleFrom(
-            //     backgroundColor: const Color.fromARGB(255, 11, 44, 41),
-            //     foregroundColor: const Color.fromARGB(255, 190, 190, 190),
-            //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            //     textStyle: const TextStyle(fontSize: 16),
-            //   ),
-            //   child: const Text('Voltar'),
-            // ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   
                   Container(
                     width: 600,
@@ -58,7 +46,7 @@ class Pagina2 extends StatelessWidget {
                         'Bem Vindo ao Study App!',
                         
                         style: TextStyle(color: Color.fromARGB(255, 214, 214, 214),
-                         fontSize: 40,
+                         fontSize: 38,
                          fontWeight: FontWeight.bold
 
                          ),
@@ -69,8 +57,16 @@ class Pagina2 extends StatelessWidget {
                     ),
                   ),
                     const SizedBox(height: 50),
-
-                   Container(
+                    Text(
+                      'Proximas Atividades',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 214, 214, 214),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
                       width: 500,
                       height: 40,
                       decoration: BoxDecoration(
@@ -99,7 +95,7 @@ class Pagina2 extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const Pagina1()),
+                        MaterialPageRoute(builder: (context) => const Pagina3()),
                       );
                     },
                     child: Container(

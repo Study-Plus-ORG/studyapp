@@ -1,7 +1,5 @@
 // main.dart
 import 'package:flutter/material.dart';
-import 'package:studyapp/social_button.dart';
-import 'package:flutter_text_decorator/flutter_text_decorator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyapp/pagina1.dart';
 
