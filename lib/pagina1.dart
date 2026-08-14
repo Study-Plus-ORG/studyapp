@@ -45,7 +45,9 @@ class _Pagina1State extends State<Pagina1> {
                     'Bem-vindo',
                     style: GoogleFonts.notoSerifDisplay(
                       fontSize: 50,
+
                       fontWeight: FontWeight.bold,
+
                       color: const Color.fromARGB(255, 228, 228, 228),
                     ),
                     textAlign: TextAlign.center,
