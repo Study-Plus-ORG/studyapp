@@ -4,6 +4,7 @@ import 'package:studyapp/social_button.dart';
 import 'package:studyapp/logn_field.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyapp/pagina2.dart';
+import 'package:studyapp/auth_service.dart';
 
 class Pagina1 extends StatefulWidget {
   const Pagina1({super.key});
@@ -14,6 +15,32 @@ class Pagina1 extends StatefulWidget {
 
 class _Pagina1State extends State<Pagina1> {
   bool showPassword = false;
+  bool isLoadingGoogle = false;
+
+  Future<void> _fazerLoginComGoogle() async {
+    setState(() => isLoadingGoogle = true);
+
+    try {
+      final user = await signInWithGoogle();
+
+      if (user != null && mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const Pagina2()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao entrar com Google: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isLoadingGoogle = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,20 +72,25 @@ class _Pagina1State extends State<Pagina1> {
                     'Bem-vindo',
                     style: GoogleFonts.notoSerifDisplay(
                       fontSize: 50,
-
                       fontWeight: FontWeight.bold,
-
                       color: const Color.fromARGB(255, 228, 228, 228),
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 50),
-                  SocialButton(
-                    iconName: 'glogo.svg',
-                    label: 'Login com Google',
-                    onPressed: () {},
-                    prefixIcon: null,
-                  ),
+                  isLoadingGoogle
+                      ? const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          child: CircularProgressIndicator(
+                            color: Color.fromARGB(255, 228, 228, 228),
+                          ),
+                        )
+                      : SocialButton(
+                          iconName: 'glogo.svg',
+                          label: 'Login com Google',
+                          onPressed: _fazerLoginComGoogle,
+                          prefixIcon: null,
+                        ),
                   const SizedBox(height: 20),
                   SocialButton(
                     iconName: 'facebook.svg',

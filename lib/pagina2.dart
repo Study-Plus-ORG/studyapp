@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:studyapp/pagina1.dart';
 import 'package:studyapp/pagina3.dart';
+import 'package:studyapp/pagina4.dart';
+
 class Pagina2 extends StatelessWidget {
   const Pagina2({super.key});
 
@@ -135,7 +137,7 @@ class Pagina2 extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const Pagina1()),
+                        MaterialPageRoute(builder: (context) => const Pagina4()),
                       );
                     },
                     child: Container(

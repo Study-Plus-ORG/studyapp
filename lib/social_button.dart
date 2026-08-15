@@ -7,16 +7,16 @@ class SocialButton extends StatelessWidget {
   final String label;
   final double horizontalPadding;
   final VoidCallback onPressed;
-
+  final Widget? prefixIcon;
 
   const SocialButton({
     super.key,
     required this.iconName,
     required this.label,
     this.horizontalPadding = 70,
-    required this.onPressed, required prefixIcon,
+    required this.onPressed,
+    this.prefixIcon,
   });
-
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +29,19 @@ class SocialButton extends StatelessWidget {
         ),
       ),
       onPressed: onPressed,
-      icon: SvgPicture.asset(
-        'assets/icons/$iconName.svg',
-        width:25,
-        colorFilter: const ColorFilter.mode(
-          Colors.white,
-          BlendMode.srcIn,
-        ),
-        ),
-         label: Text(label, style: const TextStyle(color: Color.fromARGB(255, 231, 230, 230)),)); 
-    
-    
+      icon: prefixIcon ??
+          SvgPicture.asset(
+            'assets/svgs/$iconName',
+            width: 25,
+            colorFilter: const ColorFilter.mode(
+              Colors.white,
+              BlendMode.srcIn,
+            ),
+          ),
+      label: Text(
+        label,
+        style: const TextStyle(color: Color.fromARGB(255, 231, 230, 230)),
+      ),
+    );
   }
 }
