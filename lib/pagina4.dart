@@ -36,7 +36,7 @@ class _Pagina4State extends State<Pagina4> {
     });
   }
 
-  void _abrirDialogoAdicionarEvento() {
+  void botaoevento() {
     final TextEditingController controller = TextEditingController();
 
     showDialog(
@@ -45,7 +45,7 @@ class _Pagina4State extends State<Pagina4> {
         return AlertDialog(
           backgroundColor: const Color.fromARGB(255, 11, 44, 41),
           title: const Text(
-            'Nova atividade',
+            'Novo Evento',
             style: TextStyle(color: Color.fromARGB(255, 214, 214, 214)),
           ),
           content: TextField(
@@ -144,21 +144,21 @@ class _Pagina4State extends State<Pagina4> {
       backgroundColor: const Color.fromARGB(255, 2, 22, 19),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color.fromARGB(255, 168, 168, 168),
-        onPressed: _abrirDialogoAdicionarEvento,
+        onPressed: botaoevento,
         child: const Icon(Icons.add, color: Color.fromARGB(255, 11, 44, 41)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 20),
+              const SizedBox(height: 0),
               Container(
                 width: 600,
                 height: 120,
                 decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 180, 180, 180),
+                  
                 ),
                 child: const Center(
                   child: Text(

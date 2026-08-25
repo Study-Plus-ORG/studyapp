@@ -27,7 +27,7 @@ class _Pagina3State extends State<Pagina3> {
           backgroundColor: const Color.fromARGB(255, 11, 44, 41),
           title: const Text(
             'Nova disciplina',
-            style: TextStyle(color: Color.fromARGB(255, 214, 214, 214)),
+            style: TextStyle(color: Color.fromARGB(255, 223, 55, 55)),
           ),
           content: TextField(
             controller: controller,
@@ -154,14 +154,14 @@ class _Pagina3State extends State<Pagina3> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 20),
+            const SizedBox(height: 0),
             Container(
               width: 600,
               height: 120,
               decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 180, 180, 180),
+                // color: Color.fromARGB(0, 180, 180, 180),
               ),
               child: const Center(
                 child: Text(
@@ -181,7 +181,7 @@ class _Pagina3State extends State<Pagina3> {
               child: _disciplinas.isEmpty
                   ? const Center(
                       child: Text(
-                        'Nenhuma disciplina cadastrada.\nToque no + para adicionar.',
+                        'Nenhuma disciplina cadastrada.\n Aperte "+" para adicionar.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Color.fromARGB(150, 214, 214, 214),
