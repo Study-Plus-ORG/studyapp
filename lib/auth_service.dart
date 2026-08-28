@@ -1,20 +1,27 @@
-// auth_service.dart
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-Future<User?> signInWithGoogle() async {
-  final googleUser = await GoogleSignIn().signIn();
-  if (googleUser == null) return null; // usuário cancelou o login
+class AuthService {
+  AuthService._();
 
-  final googleAuth = await googleUser.authentication;
+  static final _auth = Supabase.instance.client.auth;
 
-  final credential = GoogleAuthProvider.credential(
-    accessToken: googleAuth.accessToken,
-    idToken: googleAuth.idToken,
-  );
+  static Future<void> signIn({required String email, required String password}) async {
+    await _auth.signInWithPassword(email: email, password: password);
+  }
 
-  final userCredential =
-      await FirebaseAuth.instance.signInWithCredential(credential);
-
-  return userCredential.user;
+  static Future<AuthResponse> signUp({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    final response = await _auth.signUp(
+      email: email,
+      password: password,
+      data: {'nome': name},
+    );
+    if (response.user == null) {
+      throw const AuthException('O Supabase não retornou o usuário criado.');
+    }
+    return response;
+  }
 }

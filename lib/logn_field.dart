@@ -1,56 +1,48 @@
-// logn_field.dart
 import 'package:flutter/material.dart';
 
 class LoginField extends StatelessWidget {
-  final String hintText;
-  final bool isPasswordField;
-  final Icon? icon;
-  final Icon? suffixIcon;
-  final VoidCallback? onPressed;
-
   const LoginField({
     super.key,
     required this.hintText,
+    this.controller,
     this.isPasswordField = false,
     this.icon,
     this.suffixIcon,
     this.onPressed,
+    this.keyboardType,
   });
 
+  final String hintText;
+  final TextEditingController? controller;
+  final bool isPasswordField;
+  final IconData? icon;
+  final IconData? suffixIcon;
+  final VoidCallback? onPressed;
+  final TextInputType? keyboardType;
+
   @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 350),
-      child: TextFormField(
-        style: const TextStyle(fontSize: 17, color: Colors.white),
-        obscureText: isPasswordField,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.all(20),
-          prefixIcon: icon,
-          suffixIcon: onPressed != null && suffixIcon != null
-              ? IconButton(
-                  icon: suffixIcon!,
-                  onPressed: onPressed,
-                )
-              : suffixIcon,
-          enabledBorder: OutlineInputBorder(
-            borderSide: const BorderSide(
-              color: Color.fromARGB(200, 200, 200, 200),
-              width: 2,
-            ),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(
-              color: Colors.white,
-              width: 2,
-            ),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.white54),
-        ),
+  Widget build(BuildContext context) => TextFormField(
+    controller: controller,
+    obscureText: isPasswordField,
+    keyboardType: keyboardType,
+    autocorrect: false,
+    style: const TextStyle(color: Colors.white),
+    decoration: InputDecoration(
+      hintText: hintText,
+      hintStyle: const TextStyle(color: Color(0xFF9AB5AF)),
+      prefixIcon: icon == null ? null : Icon(icon, color: const Color(0xFF7DE2C3)),
+      suffixIcon: suffixIcon == null ? null : IconButton(
+        icon: Icon(suffixIcon, color: const Color(0xFFB4CBC6)),
+        onPressed: onPressed,
       ),
-    );
-  }
+      filled: true,
+      fillColor: const Color(0xFF0C2927),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFF7DE2C3), width: 1.5),
+      ),
+    ),
+  );
 }

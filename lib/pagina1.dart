@@ -1,155 +1,83 @@
-// pagina1.dart
 import 'package:flutter/material.dart';
-import 'package:studyapp/social_button.dart';
-import 'package:studyapp/logn_field.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:studyapp/pagina2.dart';
 import 'package:studyapp/auth_service.dart';
+import 'package:studyapp/logn_field.dart';
+import 'package:studyapp/pagina2.dart';
+import 'package:studyapp/pagina_cadastro.dart';
 
 class Pagina1 extends StatefulWidget {
   const Pagina1({super.key});
-
   @override
   State<Pagina1> createState() => _Pagina1State();
 }
 
 class _Pagina1State extends State<Pagina1> {
-  bool showPassword = false;
-  bool isLoadingGoogle = false;
-
-  Future<void> _fazerLoginComGoogle() async {
-    setState(() => isLoadingGoogle = true);
-
-    try {
-      final user = await signInWithGoogle();
-
-      if (user != null && mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Pagina2()),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao entrar com Google: $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => isLoadingGoogle = false);
-      }
-    }
-  }
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+  bool _showPassword = false;
+  bool _loading = false;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 2, 22, 19),
-      body: Center(
+  void dispose() { _email.dispose(); _password.dispose(); super.dispose(); }
+
+  Future<void> _login() async {
+    if (_email.text.trim().isEmpty || _password.text.isEmpty) {
+      _message('Preencha seu e-mail e senha.'); return;
+    }
+    setState(() => _loading = true);
+    try {
+      await AuthService.signIn(email: _email.text.trim(), password: _password.text);
+      if (mounted) Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const Pagina2()));
+    } catch (_) {
+      _message('Não foi possível entrar. Confira seus dados e tente novamente.');
+    } finally { if (mounted) setState(() => _loading = false); }
+  }
+
+  void _message(String text) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 900),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 30),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 150),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: const Color.fromARGB(255, 7, 31, 29),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color.fromARGB(255, 0, 0, 0),
-                    blurRadius: 10,
-                    offset: Offset(0, 5),
-                  ),
-                ],
+          constraints: const BoxConstraints(maxWidth: 430),
+          child: Container(
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(color: const Color(0xFF10302E), borderRadius: BorderRadius.circular(28)),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              const _Brand(),
+              const SizedBox(height: 32),
+              const Text('Boas-vindas de volta', style: TextStyle(fontSize: 27, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 8),
+              const Text('Entre para continuar o seu plano de estudos.', style: TextStyle(color: Color(0xFFB4CBC6))),
+              const SizedBox(height: 26),
+              LoginField(hintText: 'E-mail', controller: _email, icon: Icons.mail_outline_rounded, keyboardType: TextInputType.emailAddress),
+              const SizedBox(height: 14),
+              LoginField(hintText: 'Senha', controller: _password, icon: Icons.lock_outline_rounded, isPasswordField: !_showPassword, suffixIcon: _showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, onPressed: () => setState(() => _showPassword = !_showPassword)),
+              const SizedBox(height: 22),
+              FilledButton(
+                onPressed: _loading ? null : _login,
+                style: FilledButton.styleFrom(backgroundColor: const Color(0xFF7DE2C3), foregroundColor: const Color(0xFF061B1A), padding: const EdgeInsets.symmetric(vertical: 17)),
+                child: _loading ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF061B1A))) : const Text('Entrar', style: TextStyle(fontWeight: FontWeight.w800)),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'Bem-vindo',
-                    style: GoogleFonts.notoSerifDisplay(
-                      fontSize: 50,
-                      fontWeight: FontWeight.bold,
-                      color: const Color.fromARGB(255, 228, 228, 228),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 50),
-                  isLoadingGoogle
-                      ? const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          child: CircularProgressIndicator(
-                            color: Color.fromARGB(255, 228, 228, 228),
-                          ),
-                        )
-                      : SocialButton(
-                          iconName: 'glogo.svg',
-                          label: 'Login com Google',
-                          onPressed: _fazerLoginComGoogle,
-                          prefixIcon: null,
-                        ),
-                  const SizedBox(height: 20),
-                  SocialButton(
-                    iconName: 'facebook.svg',
-                    label: 'Login com Facebook',
-                    onPressed: () {},
-                    prefixIcon: null,
-                  ),
-                  const SizedBox(height: 15),
-                  const Text('ou', style: TextStyle(fontSize: 17)),
-                  const SizedBox(height: 15),
-                  LoginField(
-                    hintText: 'Email',
-                    isPasswordField: false,
-                    icon: const Icon(Icons.email, color: Colors.white),
-                  ),
-                  const SizedBox(height: 20),
-                  LoginField(
-                    hintText: 'Senha',
-                    isPasswordField: !showPassword,
-                    icon: const Icon(Icons.lock, color: Colors.white),
-                    suffixIcon: Icon(
-                      showPassword ? Icons.visibility : Icons.visibility_off,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        showPassword = !showPassword;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const Pagina2()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 0, 26, 23),
-                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      'Entrar',
-                      style: GoogleFonts.notoSerifDisplay(
-                        fontSize: 20,
-                        color: const Color.fromARGB(255, 228, 228, 228),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+              const SizedBox(height: 18),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                const Text('Ainda não tem uma conta?', style: TextStyle(color: Color(0xFFB4CBC6))),
+                TextButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaginaCadastro())), child: const Text('Cadastre-se')),
+              ]),
+            ]),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+class _Brand extends StatelessWidget {
+  const _Brand();
+  @override
+  Widget build(BuildContext context) => const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+    CircleAvatar(backgroundColor: Color(0xFF7DE2C3), foregroundColor: Color(0xFF061B1A), child: Icon(Icons.school_rounded)),
+    SizedBox(width: 10), Text('Study', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+  ]);
 }
