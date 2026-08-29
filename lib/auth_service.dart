@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
@@ -8,6 +9,13 @@ class AuthService {
   static Future<void> signIn({required String email, required String password}) async {
     await _auth.signInWithPassword(email: email, password: password);
   }
+
+  static Future<void> signOut() => _auth.signOut();
+
+  static Future<void> signInWithGoogle() => _auth.signInWithOAuth(
+    OAuthProvider.google,
+    redirectTo: kIsWeb ? 'http://localhost:3000/' : null,
+  );
 
   static Future<AuthResponse> signUp({
     required String name,

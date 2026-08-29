@@ -36,15 +36,20 @@ class _Pagina3State extends State<Pagina3> {
     final controller = TextEditingController(
       text: subject?['nome'] as String? ?? '',
     );
+    final planningController = TextEditingController(
+      text: subject?['planejamento'] as String? ?? '',
+    );
     final name = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF10302E),
-        title: Text(subject == null ? 'Nova disciplina' : 'Editar disciplina'),
+          title: Text(subject == null ? 'Nova disciplina' : 'Editar disciplina'),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(hintText: 'Ex.: Química'),
+          decoration: InputDecoration(
+            hintText: _subjects.isEmpty ? 'Ex.: Química' : null,
+          ),
         ),
         actions: [
           TextButton(
@@ -53,20 +58,54 @@ class _Pagina3State extends State<Pagina3> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Avançar'),
+          ),
+        ],
+      ),
+    );
+    if (name == null || name.isEmpty) {
+      controller.dispose();
+      planningController.dispose();
+      return;
+    }
+    final planning = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF10302E),
+        title: Text('Planejar $name'),
+        content: TextField(
+          controller: planningController,
+          autofocus: true,
+          maxLength: 250,
+          maxLines: 4,
+          decoration: InputDecoration(
+            labelText: 'Planejar',
+            hintText: _subjects.isEmpty ? 'Ex.: Modelos atômicos' : null,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, planningController.text.trim()),
             child: const Text('Salvar'),
           ),
         ],
       ),
     );
     controller.dispose();
-    if (name == null || name.isEmpty) return;
+    planningController.dispose();
+    if (planning == null) return;
     try {
       if (subject == null) {
-        await StudyRepository.addSubject(name);
+        await StudyRepository.addSubject(name, planning);
       } else {
         await StudyRepository.updateSubject(
           (subject['id_disciplina'] as num).toInt(),
           name,
+          planning,
         );
       }
       await _load();
@@ -161,9 +200,11 @@ class _Pagina3State extends State<Pagina3> {
                             subject['nome'] as String,
                             style: const TextStyle(fontWeight: FontWeight.w800),
                           ),
-                          subtitle: const Text(
-                            'Pronta para planejar',
-                            style: TextStyle(color: Color(0xFFB4CBC6)),
+                          subtitle: Text(
+                            (subject['planejamento'] as String? ?? '').isEmpty
+                                ? 'Sem planejamento'
+                                : subject['planejamento'] as String,
+                            style: const TextStyle(color: Color(0xFFB4CBC6)),
                           ),
                           trailing: PopupMenuButton<String>(
                             onSelected: (action) => action == 'edit'

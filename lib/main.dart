@@ -1,7 +1,9 @@
 // main.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyapp/pagina1.dart';
+import 'package:studyapp/pagina2.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -32,6 +34,13 @@ class StudyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Study App',
+      locale: const Locale('pt', 'BR'),
+      supportedLocales: const [Locale('pt', 'BR')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
@@ -43,7 +52,11 @@ class StudyApp extends StatelessWidget {
         ),
         textTheme: GoogleFonts.manropeTextTheme(ThemeData.dark().textTheme),
       ),
-      home: setupError == null ? const Pagina1() : _SetupError(message: setupError!),
+      home: setupError == null
+          ? Supabase.instance.client.auth.currentSession == null
+              ? const Pagina1()
+              : const Pagina2()
+          : _SetupError(message: setupError!),
     );
   }
 }

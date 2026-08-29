@@ -3,8 +3,10 @@ import 'package:studyapp/pagina1.dart';
 import 'package:studyapp/pagina3.dart';
 import 'package:studyapp/pagina4.dart';
 import 'package:studyapp/pagina5.dart';
+import 'package:studyapp/study_repository.dart';
+import 'package:studyapp/auth_service.dart';
 
-class Pagina2 extends StatelessWidget {
+class Pagina2 extends StatefulWidget {
   const Pagina2({super.key});
 
   static const ink = Color(0xFF061B1A);
@@ -12,11 +14,44 @@ class Pagina2 extends StatelessWidget {
   static const mint = Color(0xFF7DE2C3);
 
   @override
+  State<Pagina2> createState() => _Pagina2State();
+}
+
+class _Pagina2State extends State<Pagina2> {
+  int _subjectCount = 0;
+  int _taskCount = 0;
+  int _flashcardCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDashboard();
+  }
+
+  Future<void> _loadDashboard() async {
+    try {
+      final subjectsFuture = StudyRepository.getSubjects();
+      final tasksFuture = StudyRepository.getTasks();
+      final flashcardCountFuture = StudyRepository.getFlashcardCount();
+      final subjects = await subjectsFuture;
+      final tasks = await tasksFuture;
+      final flashcardCount = await flashcardCountFuture;
+      if (mounted) {
+        setState(() {
+          _subjectCount = subjects.length;
+          _taskCount = tasks.length;
+          _flashcardCount = flashcardCount;
+        });
+      }
+    } catch (_) {}
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ink,
+      backgroundColor: Pagina2.ink,
       appBar: AppBar(
-        backgroundColor: ink,
+        backgroundColor: Pagina2.ink,
         elevation: 0,
         title: const Row(children: [
           _Logo(), SizedBox(width: 10),
@@ -26,10 +61,7 @@ class Pagina2 extends StatelessWidget {
           IconButton(
             tooltip: 'Sair',
             icon: const Icon(Icons.logout_rounded),
-            onPressed: () => Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const Pagina1()),
-              (route) => false,
-            ),
+            onPressed: _signOut,
           ),
           const SizedBox(width: 8),
         ],
@@ -42,14 +74,18 @@ class Pagina2 extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1100),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                _WelcomeCard(wide: wide),
+                _WelcomeCard(
+                  wide: wide,
+                  onStart: () => _go(context, const Pagina3()),
+                ),
                 const SizedBox(height: 32),
                 const Text('Seu dia de estudos', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 14),
-                const Wrap(spacing: 14, runSpacing: 14, children: [
-                  _StatCard(icon: Icons.menu_book_rounded, value: '3', label: 'disciplinas'),
-                  _StatCard(icon: Icons.timer_outlined, value: '0h', label: 'foco hoje'),
-                  _StatCard(icon: Icons.event_available_rounded, value: '0', label: 'tarefas'),
+                Wrap(spacing: 14, runSpacing: 14, children: [
+                  _StatCard(icon: Icons.menu_book_rounded, value: '$_subjectCount', label: 'disciplinas'),
+                  const _StatCard(icon: Icons.timer_outlined, value: '0h', label: 'foco hoje'),
+                  _StatCard(icon: Icons.event_available_rounded, value: '$_taskCount', label: 'tarefas'),
+                  _StatCard(icon: Icons.style_rounded, value: '$_flashcardCount', label: 'flashcards'),
                 ]),
                 const SizedBox(height: 32),
                 Text('Acesso rápido', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
@@ -90,8 +126,28 @@ class Pagina2 extends StatelessWidget {
     );
   }
 
-  void _go(BuildContext context, Widget page) =>
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+  Future<void> _go(BuildContext context, Widget page) async {
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+    await _loadDashboard();
+  }
+
+  Future<void> _signOut() async {
+    try {
+      await AuthService.signOut();
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const Pagina1()),
+          (route) => false,
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível sair da conta.')),
+        );
+      }
+    }
+  }
 }
 
 class _Logo extends StatelessWidget {
@@ -105,8 +161,9 @@ class _Logo extends StatelessWidget {
 }
 
 class _WelcomeCard extends StatelessWidget {
-  const _WelcomeCard({required this.wide});
+  const _WelcomeCard({required this.wide, required this.onStart});
   final bool wide;
+  final VoidCallback onStart;
   @override
   Widget build(BuildContext context) => Container(
     width: double.infinity,
@@ -128,14 +185,18 @@ class _WelcomeCard extends StatelessWidget {
           ]),
         ),
         if (wide) const Spacer(),
-        Container(
-          margin: EdgeInsets.only(top: wide ? 0 : 22),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(color: const Color(0xFF0C2927), borderRadius: BorderRadius.circular(16)),
-          child: const Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.local_fire_department_rounded, color: Color(0xFFFFC56B)), SizedBox(width: 8),
-            Text('Comece hoje', style: TextStyle(fontWeight: FontWeight.w700)),
-          ]),
+        InkWell(
+          onTap: onStart,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            margin: EdgeInsets.only(top: wide ? 0 : 22),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(color: const Color(0xFF0C2927), borderRadius: BorderRadius.circular(16)),
+            child: const Row(mainAxisSize: MainAxisSize.min, children: [
+              Icon(Icons.local_fire_department_rounded, color: Color(0xFFFFC56B)), SizedBox(width: 8),
+              Text('Comece hoje', style: TextStyle(fontWeight: FontWeight.w700)),
+            ]),
+          ),
         ),
       ],
     ),
