@@ -35,6 +35,13 @@ class StudyRepository {
       .eq('id_disciplina', id)
       .eq('id_usuario', _userId);
 
+  static Future<void> updateSubjectCompletion(int id, bool completed) async =>
+      _client
+          .from('disciplinas')
+          .update({'concluida': completed})
+          .eq('id_disciplina', id)
+          .eq('id_usuario', _userId);
+
   static Future<void> deleteSubject(int id) async => _client
       .from('disciplinas')
       .delete()
@@ -63,6 +70,13 @@ class StudyRepository {
       .delete()
       .eq('id_tarefa', id)
       .eq('id_usuario', _userId);
+
+  static Future<void> updateTaskCompletion(int id, bool completed) async =>
+      _client
+          .from('tarefas')
+          .update({'concluida': completed})
+          .eq('id_tarefa', id)
+          .eq('id_usuario', _userId);
 
   static Future<List<Map<String, dynamic>>> getDecks() async =>
       List<Map<String, dynamic>>.from(

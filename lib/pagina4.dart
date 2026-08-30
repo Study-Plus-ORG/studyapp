@@ -9,7 +9,7 @@ class Pagina4 extends StatefulWidget {
 }
 
 class _Pagina4State extends State<Pagina4> {
-  final List<Appointment> _events = [];
+  final List<_CalendarEvent> _events = [];
   final CalendarController _calendarController = CalendarController();
   DateTime _selected = DateTime.now();
 
@@ -45,11 +45,11 @@ class _Pagina4State extends State<Pagina4> {
               final date = DateTime.parse(
                 task['data_entrega'] as String,
               ).toLocal();
-              return Appointment(
-                subject: task['titulo'] as String,
+              return _CalendarEvent(
+                id: (task['id_tarefa'] as num).toInt(),
+                title: task['titulo'] as String,
                 startTime: date,
-                endTime: date.add(const Duration(hours: 1)),
-                color: const Color(0xFF7DE2C3),
+                completed: task['concluida'] == true,
               );
             }),
           );
@@ -60,6 +60,41 @@ class _Pagina4State extends State<Pagina4> {
           SnackBar(content: Text('Erro ao carregar atividades: $error')),
         );
       }
+    }
+  }
+
+  Future<bool> _toggleEventCompletion(_CalendarEvent event) async {
+    try {
+      await StudyRepository.updateTaskCompletion(event.id, !event.completed);
+      await _loadEvents();
+      return true;
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao atualizar atividade: $error')),
+        );
+      }
+      return false;
+    }
+  }
+
+  Future<bool> _removeEvent(_CalendarEvent event) async {
+    try {
+      await StudyRepository.deleteTask(event.id);
+      await _loadEvents();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Atividade removida.')),
+        );
+      }
+      return true;
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao remover atividade: $error')),
+        );
+      }
+      return false;
     }
   }
 
@@ -85,16 +120,39 @@ class _Pagina4State extends State<Pagina4> {
                   shrinkWrap: true,
                   itemCount: activities.length,
                   separatorBuilder: (_, _) => const Divider(),
-                  itemBuilder: (_, index) => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(
-                      Icons.event_available_rounded,
-                      color: Color(0xFF7DE2C3),
-                    ),
-                    title: Text(
-                      activities[index].subject as String? ?? 'Atividade',
-                    ),
-                  ),
+                  itemBuilder: (_, index) {
+                    final activity = activities[index];
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Checkbox(
+                        value: activity.completed,
+                        activeColor: const Color(0xFF7DE2C3),
+                        onChanged: (_) async {
+                          final updated = await _toggleEventCompletion(activity);
+                          if (updated && context.mounted) Navigator.pop(context);
+                        },
+                      ),
+                      title: Text(
+                        activity.title,
+                        style: TextStyle(
+                          decoration: activity.completed
+                              ? TextDecoration.lineThrough
+                              : null,
+                          color: activity.completed
+                              ? const Color(0xFFB4CBC6)
+                              : Colors.white,
+                        ),
+                      ),
+                      trailing: IconButton(
+                        onPressed: () async {
+                          final removed = await _removeEvent(activity);
+                          if (removed && context.mounted) Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.delete_outline_rounded),
+                        tooltip: 'Remover atividade',
+                      ),
+                    );
+                  },
                 ),
         ),
         actions: [
@@ -233,9 +291,35 @@ class _Pagina4State extends State<Pagina4> {
                 if (date != null) _showDayActivities(date);
               },
               monthViewSettings: const MonthViewSettings(
-                appointmentDisplayMode: MonthAppointmentDisplayMode.indicator,
+                appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
                 showTrailingAndLeadingDates: false,
               ),
+              appointmentBuilder: (context, details) {
+                final event = details.appointments.first as _CalendarEvent;
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    color: event.completed
+                        ? const Color(0xFF7DE2C3).withValues(alpha: .38)
+                        : const Color(0xFF7DE2C3),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    event.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: const Color(0xFF061B1A),
+                      fontWeight: FontWeight.w700,
+                      decoration: event.completed
+                          ? TextDecoration.lineThrough
+                          : null,
+                    ),
+                  ),
+                );
+              },
               headerStyle: const CalendarHeaderStyle(
                 textStyle: TextStyle(
                   color: Colors.white,
@@ -269,7 +353,36 @@ class _Pagina4State extends State<Pagina4> {
 }
 
 class _EventSource extends CalendarDataSource {
-  _EventSource(List<Appointment> source) {
+  _EventSource(List<_CalendarEvent> source) {
     appointments = source;
   }
+
+  _CalendarEvent _event(int index) => appointments![index] as _CalendarEvent;
+
+  @override
+  DateTime getStartTime(int index) => _event(index).startTime;
+
+  @override
+  DateTime getEndTime(int index) =>
+      _event(index).startTime.add(const Duration(hours: 1));
+
+  @override
+  String getSubject(int index) => _event(index).title;
+
+  @override
+  Color getColor(int index) => const Color(0xFF7DE2C3);
+}
+
+class _CalendarEvent {
+  const _CalendarEvent({
+    required this.id,
+    required this.title,
+    required this.startTime,
+    required this.completed,
+  });
+
+  final int id;
+  final String title;
+  final DateTime startTime;
+  final bool completed;
 }

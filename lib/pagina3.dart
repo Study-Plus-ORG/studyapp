@@ -125,6 +125,19 @@ class _Pagina3State extends State<Pagina3> {
     }
   }
 
+  Future<void> _toggleCompletion(Map<String, dynamic> subject) async {
+    try {
+      final completed = subject['concluida'] == true;
+      await StudyRepository.updateSubjectCompletion(
+        (subject['id_disciplina'] as num).toInt(),
+        !completed,
+      );
+      await _load();
+    } catch (error) {
+      _error(error);
+    }
+  }
+
   void _error(Object e) => ScaffoldMessenger.of(
     context,
   ).showSnackBar(SnackBar(content: Text('Erro ao salvar disciplina: $e')));
@@ -171,7 +184,9 @@ class _Pagina3State extends State<Pagina3> {
                       ),
                     ),
                   ..._subjects.map(
-                    (subject) => Padding(
+                    (subject) {
+                      final completed = subject['concluida'] == true;
+                      return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: Container(
                         decoration: BoxDecoration(
@@ -183,22 +198,22 @@ class _Pagina3State extends State<Pagina3> {
                             horizontal: 18,
                             vertical: 6,
                           ),
-                          leading: Container(
-                            padding: const EdgeInsets.all(9),
-                            decoration: BoxDecoration(
-                              color: const Color(
-                                0xFF7DE2C3,
-                              ).withValues(alpha: .14),
-                              borderRadius: BorderRadius.circular(11),
-                            ),
-                            child: const Icon(
-                              Icons.auto_stories_rounded,
-                              color: Color(0xFF7DE2C3),
-                            ),
+                          leading: Checkbox(
+                            value: completed,
+                            activeColor: const Color(0xFF7DE2C3),
+                            onChanged: (_) => _toggleCompletion(subject),
                           ),
                           title: Text(
                             subject['nome'] as String,
-                            style: const TextStyle(fontWeight: FontWeight.w800),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              decoration: completed
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                              color: completed
+                                  ? const Color(0xFFB4CBC6)
+                                  : null,
+                            ),
                           ),
                           subtitle: Text(
                             (subject['planejamento'] as String? ?? '').isEmpty
@@ -207,13 +222,27 @@ class _Pagina3State extends State<Pagina3> {
                             style: const TextStyle(color: Color(0xFFB4CBC6)),
                           ),
                           trailing: PopupMenuButton<String>(
-                            onSelected: (action) => action == 'edit'
-                                ? _edit(subject: subject)
-                                : _delete(subject),
-                            itemBuilder: (_) => const [
+                            onSelected: (action) {
+                              if (action == 'edit') {
+                                _edit(subject: subject);
+                              } else if (action == 'completion') {
+                                _toggleCompletion(subject);
+                              } else {
+                                _delete(subject);
+                              }
+                            },
+                            itemBuilder: (_) => [
                               PopupMenuItem(
                                 value: 'edit',
                                 child: Text('Editar'),
+                              ),
+                              PopupMenuItem(
+                                value: 'completion',
+                                child: Text(
+                                  completed
+                                      ? 'Marcar como pendente'
+                                      : 'Marcar como concluída',
+                                ),
                               ),
                               PopupMenuItem(
                                 value: 'delete',
@@ -223,7 +252,8 @@ class _Pagina3State extends State<Pagina3> {
                           ),
                         ),
                       ),
-                    ),
+                    );
+                    },
                   ),
                 ],
               ),
