@@ -12,6 +12,16 @@ class AuthService {
 
   static Future<void> signOut() => _auth.signOut();
 
+  static String get displayName {
+    final user = _auth.currentUser;
+    final name = user?.userMetadata?['nome'] as String?;
+    if (name != null && name.trim().isNotEmpty) return name.trim();
+    return user?.email?.split('@').first ?? 'Estudante';
+  }
+
+  static Future<void> updateDisplayName(String name) =>
+      _auth.updateUser(UserAttributes(data: {'nome': name.trim()}));
+
   static Future<void> signInWithGoogle() => _auth.signInWithOAuth(
     OAuthProvider.google,
     redirectTo: kIsWeb ? 'http://localhost:3000/' : null,

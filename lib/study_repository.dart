@@ -119,4 +119,47 @@ class StudyRepository {
 
   static Future<void> deleteFlashcard(String id) async =>
       _client.from('flashcards').delete().eq('id', id);
+
+  static Future<List<Map<String, dynamic>>> getNotes() async =>
+      List<Map<String, dynamic>>.from(
+        await _client
+            .from('notas')
+            .select()
+            .eq('id_usuario', _userId)
+            .order('atualizada_em', ascending: false),
+      );
+
+  static Future<Map<String, dynamic>> createNote(String title) async =>
+      Map<String, dynamic>.from(
+        await _client
+            .from('notas')
+            .insert({'id_usuario': _userId, 'titulo': title})
+            .select()
+            .single(),
+      );
+
+  static Future<void> updateNote({
+    required String id,
+    required String title,
+    required String content,
+    required Map<String, dynamic> style,
+    required List<dynamic> drawing,
+  }) =>
+      _client
+          .from('notas')
+          .update({
+            'titulo': title,
+            'conteudo': content,
+            'estilo': style,
+            'desenho': drawing,
+            'atualizada_em': DateTime.now().toIso8601String(),
+          })
+          .eq('id', id)
+          .eq('id_usuario', _userId);
+
+  static Future<void> deleteNote(String id) => _client
+      .from('notas')
+      .delete()
+      .eq('id', id)
+      .eq('id_usuario', _userId);
 }
