@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'package:studyapp/study_repository.dart';
 import 'package:studyapp/study_session_store.dart';
 
@@ -25,6 +28,44 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
     } catch (_) {}
   }
 
+  Future<void> _exportReport(List<StudySession> sessions) async {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 6));
+    final weekSessions = sessions.where((session) => !session.finishedAt.isBefore(start)).toList();
+    final focus = weekSessions.fold(Duration.zero, (total, item) => total + item.duration);
+    final document = pw.Document();
+    document.addPage(pw.MultiPage(
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.all(36),
+      build: (_) => [
+        pw.Text('Study — Relatório de estudos', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+        pw.SizedBox(height: 6),
+        pw.Text('Período: ${_dateLabel(start)} a ${_dateLabel(now)}'),
+        pw.Divider(),
+        pw.SizedBox(height: 12),
+        pw.Row(children: [
+          _pdfMetric('Tempo de foco', _formatDuration(focus)),
+          _pdfMetric('Pomodoros', '${weekSessions.length}'),
+          _pdfMetric('Sequência', '${_streak(sessions, now)} dias'),
+        ]),
+        pw.SizedBox(height: 24),
+        pw.Text('Progresso', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+        pw.SizedBox(height: 8),
+        pw.Bullet(text: 'Disciplinas concluídas: $_completedSubjects de $_subjects'),
+        pw.Bullet(text: 'Atividades concluídas: $_completedTasks de $_tasks'),
+        pw.SizedBox(height: 24),
+        pw.Text('Sessões concluídas', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+        pw.SizedBox(height: 8),
+        if (weekSessions.isEmpty) pw.Text('Nenhuma sessão concluída neste período.') else
+          pw.Table.fromTextArray(
+            headers: const ['Data', 'Duração'],
+            data: weekSessions.reversed.map((item) => [_dateTimeLabel(item.finishedAt), _formatDuration(item.duration)]).toList(),
+          ),
+      ],
+    ));
+    await Printing.sharePdf(bytes: await document.save(), filename: 'relatorio-estudos-${now.year}-${now.month.toString().padLeft(2, '0')}.pdf');
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Relatórios de estudo', style: TextStyle(fontWeight: FontWeight.w800))),
@@ -36,7 +77,7 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
         final weekFocus = days.fold(Duration.zero, (total, day) => total + StudySessionStore.focusOn(day, sessions));
         final sessionCount = days.fold(0, (total, day) => total + StudySessionStore.completedOn(day, sessions));
         return Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 900), child: ListView(padding: const EdgeInsets.all(20), children: [
-          const Text('Seu progresso', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
+          Row(children: [const Expanded(child: Text('Seu progresso', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800))), FilledButton.icon(onPressed: () => _exportReport(sessions), icon: const Icon(Icons.picture_as_pdf_rounded), label: const Text('Exportar PDF'))]),
           const SizedBox(height: 6),
           const Text('Acompanhe as sessões concluídas no Pomodoro e o andamento da sua rotina.', style: TextStyle(color: Color(0xFFB4CBC6))),
           const SizedBox(height: 24),
@@ -61,6 +102,15 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
     return total;
   }
 }
+
+pw.Widget _pdfMetric(String label, String value) => pw.Expanded(child: pw.Container(
+  margin: const pw.EdgeInsets.only(right: 8), padding: const pw.EdgeInsets.all(12),
+  decoration: pw.BoxDecoration(border: pw.Border.all(color: PdfColors.grey400), borderRadius: pw.BorderRadius.circular(6)),
+  child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [pw.Text(value, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)), pw.Text(label)],),
+));
+
+String _dateLabel(DateTime date) => '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+String _dateTimeLabel(DateTime date) => '${_dateLabel(date)} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
 
 class _Metric extends StatelessWidget {
   const _Metric({required this.icon, required this.value, required this.label, required this.color});

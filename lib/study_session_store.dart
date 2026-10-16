@@ -8,8 +8,6 @@ class StudySession {
   final DateTime finishedAt;
   final Duration duration;
 }
-
-/// Mantém e restaura as sessões concluídas no dispositivo.
 class StudySessionStore {
   StudySessionStore._();
   static final ValueNotifier<List<StudySession>> sessions = ValueNotifier<List<StudySession>>([]);
@@ -32,7 +30,6 @@ class StudySessionStore {
       }
       sessions.value = loaded;
     } catch (_) {
-      // O aplicativo continua funcionando mesmo sem armazenamento local.
     }
   }
 

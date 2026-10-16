@@ -239,16 +239,43 @@ class _DeckFlashcardsPageState extends State<_DeckFlashcardsPage> {
   Future<void> _createCard() async {
     final questionController = TextEditingController();
     final answerController = TextEditingController();
-    final question = await _askQuestion(questionController);
-    if (question == null) {
-      questionController.dispose();
-      answerController.dispose();
-      return;
-    }
-    final answer = await _askAnswer(question, answerController);
+    final created = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF10302E),
+        title: const Text('Novo flashcard'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: questionController,
+                autofocus: true,
+                maxLength: 350,
+                maxLines: 4,
+                decoration: const InputDecoration(labelText: 'Pergunta'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: answerController,
+                maxLength: 250,
+                maxLines: 4,
+                decoration: const InputDecoration(labelText: 'Resposta'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Criar')),
+        ],
+      ),
+    );
+    final question = questionController.text.trim();
+    final answer = answerController.text.trim();
     questionController.dispose();
     answerController.dispose();
-    if (answer == null) return;
+    if (created != true || question.isEmpty || answer.isEmpty) return;
     try {
       await StudyRepository.addFlashcard(widget.deckId, question, answer);
       await _loadCards();

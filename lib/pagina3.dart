@@ -39,16 +39,35 @@ class _Pagina3State extends State<Pagina3> {
     final planningController = TextEditingController(
       text: subject?['planejamento'] as String? ?? '',
     );
-    final name = await showDialog<String>(
+    final saved = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF10302E),
-          title: Text(subject == null ? 'Nova disciplina' : 'Editar disciplina'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: _subjects.isEmpty ? 'Ex.: Química' : null,
+        title: Text(subject == null ? 'Nova disciplina' : 'Editar disciplina'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: controller,
+                autofocus: true,
+                maxLength: 100,
+                decoration: InputDecoration(
+                  labelText: 'Disciplina',
+                  hintText: _subjects.isEmpty ? 'Ex.: Química' : null,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: planningController,
+                maxLength: 250,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Planejamento',
+                  hintText: 'Ex.: Modelos atômicos',
+                ),
+              ),
+            ],
           ),
         ),
         actions: [
@@ -57,47 +76,17 @@ class _Pagina3State extends State<Pagina3> {
             child: const Text('Cancelar'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Avançar'),
-          ),
-        ],
-      ),
-    );
-    if (name == null || name.isEmpty) {
-      controller.dispose();
-      planningController.dispose();
-      return;
-    }
-    final planning = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF10302E),
-        title: Text('Planejar $name'),
-        content: TextField(
-          controller: planningController,
-          autofocus: true,
-          maxLength: 250,
-          maxLines: 4,
-          decoration: InputDecoration(
-            labelText: 'Planejar',
-            hintText: _subjects.isEmpty ? 'Ex.: Modelos atômicos' : null,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, planningController.text.trim()),
+            onPressed: () => Navigator.pop(context, true),
             child: const Text('Salvar'),
           ),
         ],
       ),
     );
+    final name = controller.text.trim();
+    final planning = planningController.text.trim();
     controller.dispose();
     planningController.dispose();
-    if (planning == null) return;
+    if (saved != true || name.isEmpty) return;
     try {
       if (subject == null) {
         await StudyRepository.addSubject(name, planning);

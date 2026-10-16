@@ -6,6 +6,7 @@ import 'package:studyapp/pagina5.dart';
 import 'package:studyapp/pomodoro.dart';
 import 'package:studyapp/perfil.dart';
 import 'package:studyapp/relatorios.dart';
+import 'package:studyapp/notas.dart';
 import 'package:studyapp/study_repository.dart';
 import 'package:studyapp/study_session_store.dart';
 import 'package:studyapp/auth_service.dart';
@@ -109,6 +110,8 @@ class _Pagina2State extends State<Pagina2> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final wide = constraints.maxWidth >= 760;
+          final statCardWidth = wide ? 170.0 : (constraints.maxWidth - 54) / 2;
+          final actionCardWidth = wide ? 200.0 : (constraints.maxWidth - 56) / 2;
           return SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(
               wide ? 40 : 20,
@@ -143,6 +146,7 @@ class _Pagina2State extends State<Pagina2> {
                       runSpacing: 14,
                       children: [
                         _StatCard(
+                          width: statCardWidth,
                           icon: Icons.menu_book_rounded,
                           value: '$_subjectCount',
                           label: 'disciplinas',
@@ -150,17 +154,20 @@ class _Pagina2State extends State<Pagina2> {
                         ValueListenableBuilder<List<StudySession>>(
                           valueListenable: StudySessionStore.sessions,
                           builder: (_, sessions, __) => _StatCard(
+                            width: statCardWidth,
                             icon: Icons.timer_outlined,
                             value: _focusToday(sessions),
                             label: 'foco hoje',
                           ),
                         ),
                         _StatCard(
+                          width: statCardWidth,
                           icon: Icons.event_available_rounded,
                           value: '$_taskCount',
                           label: 'tarefas',
                         ),
                         _StatCard(
+                          width: statCardWidth,
                           icon: Icons.style_rounded,
                           value: '$_flashcardCount',
                           label: 'flashcards',
@@ -188,7 +195,15 @@ class _Pagina2State extends State<Pagina2> {
                       runSpacing: 16,
                       children: [
                         _ActionCard(
-                          width: wide ? 200 : constraints.maxWidth - 40,
+                          width: actionCardWidth,
+                          icon: Icons.edit_note_rounded,
+                          title: 'Notas',
+                          description: 'Escreva resumos e ideias de estudo.',
+                          color: const Color(0xFFDCE8FF),
+                          onTap: () => _go(context, const NotasPage()),
+                        ),
+                        _ActionCard(
+                          width: actionCardWidth,
                           icon: Icons.auto_stories_rounded,
                           title: 'Disciplinas',
                           description: 'Organize as matérias que você estuda.',
@@ -196,7 +211,7 @@ class _Pagina2State extends State<Pagina2> {
                           onTap: () => _go(context, const Pagina3()),
                         ),
                         _ActionCard(
-                          width: wide ? 200 : constraints.maxWidth - 40,
+                          width: actionCardWidth,
                           icon: Icons.calendar_month_rounded,
                           title: 'Calendário',
                           description: 'Planeje provas, tarefas e revisões.',
@@ -204,7 +219,7 @@ class _Pagina2State extends State<Pagina2> {
                           onTap: () => _go(context, const Pagina4()),
                         ),
                         _ActionCard(
-                          width: wide ? 200 : constraints.maxWidth - 40,
+                          width: actionCardWidth,
                           icon: Icons.style_rounded,
                           title: 'Flashcards',
                           description:
@@ -213,7 +228,7 @@ class _Pagina2State extends State<Pagina2> {
                           onTap: () => _go(context, const Pagina5()),
                         ),
                         _ActionCard(
-                          width: wide ? 200 : constraints.maxWidth - 40,
+                          width: actionCardWidth,
                           icon: Icons.timer_rounded,
                           title: 'Pomodoro',
                           description: 'Estude com ciclos de foco e pausas.',
@@ -221,7 +236,7 @@ class _Pagina2State extends State<Pagina2> {
                           onTap: () => _go(context, const TimerPage()),
                         ),
                         _ActionCard(
-                          width: wide ? 200 : constraints.maxWidth - 40,
+                          width: actionCardWidth,
                           icon: Icons.insights_rounded,
                           title: 'Relatórios',
                           description: 'Veja seu foco e progresso da semana.',
@@ -365,15 +380,17 @@ class _WelcomeCard extends StatelessWidget {
 
 class _StatCard extends StatelessWidget {
   const _StatCard({
+    required this.width,
     required this.icon,
     required this.value,
     required this.label,
   });
+  final double width;
   final IconData icon;
   final String value, label;
   @override
   Widget build(BuildContext context) => Container(
-    width: 170,
+    width: width,
     padding: const EdgeInsets.all(18),
     decoration: BoxDecoration(
       color: Pagina2.surface,
@@ -475,9 +492,11 @@ class _ActionCard extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
   @override
-  Widget build(BuildContext context) => SizedBox(
+  Widget build(BuildContext context) {
+    final compact = width < 180;
+    return SizedBox(
     width: width,
-    height: 230,
+    height: compact ? 210 : 230,
     child: Material(
       color: Pagina2.surface,
       borderRadius: BorderRadius.circular(20),
@@ -485,7 +504,7 @@ class _ActionCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(compact ? 14 : 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -497,20 +516,22 @@ class _ActionCard extends StatelessWidget {
                 ),
                 child: Icon(icon, color: color),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: compact ? 13 : 20),
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 18,
+                style: TextStyle(
+                  fontSize: compact ? 16 : 18,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(height: 6),
               Text(
                 description,
+                maxLines: compact ? 3 : null,
+                overflow: compact ? TextOverflow.ellipsis : null,
                 style: const TextStyle(color: Color(0xFFB4CBC6), height: 1.4),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: compact ? 10 : 18),
               const Row(
                 children: [
                   Text(
@@ -532,6 +553,6 @@ class _ActionCard extends StatelessWidget {
           ),
         ),
       ),
-    ),
-  );
+    ));
+  }
 }
