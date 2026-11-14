@@ -57,12 +57,27 @@ class StudyRepository {
             .order('data_entrega'),
       );
 
-  static Future<void> addTask(String title, DateTime date) async =>
-      _client.from('tarefas').insert({
-        'id_usuario': _userId,
-        'titulo': title,
-        'data_entrega': date.toIso8601String(),
-        'concluida': false,
+  static Future<Map<String, dynamic>> addTask(String title, DateTime date) async =>
+      Map<String, dynamic>.from(
+        await _client
+            .from('tarefas')
+            .insert({
+              'id_usuario': _userId,
+              'titulo': title,
+              'data_entrega': date.toIso8601String(),
+              'concluida': false,
+            })
+            .select()
+            .single(),
+      );
+
+  /// Cria uma cópia da atividade no calendário do colega cadastrado.
+  static Future<void> shareTask({
+    required int taskId,
+    required String recipientEmail,
+  }) => _client.rpc('share_task_by_email', params: {
+        'task_id': taskId,
+        'recipient_email': recipientEmail.trim().toLowerCase(),
       });
 
   static Future<void> deleteTask(int id) async => _client

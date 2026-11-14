@@ -7,10 +7,12 @@ import 'package:studyapp/pagina2.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:studyapp/study_session_store.dart';
+import 'package:studyapp/deadline_notifications.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await StudySessionStore.load();
+  await DeadlineNotifications.initialize();
   String? setupError;
   try {
     await dotenv.load(fileName: '.env');

@@ -47,11 +47,15 @@ class _Pagina2State extends State<Pagina2> {
     final preferences = await SharedPreferences.getInstance();
     final key = 'welcome_shown_$userId';
     final shown = preferences.getBool(key) ?? false;
-    if (!shown) await preferences.setBool(key, true);
-    if (mounted) setState(() {
-      _name = AuthService.displayName;
-      _showWelcome = !shown;
-    });
+    if (!shown) {
+      await preferences.setBool(key, true);
+    }
+    if (mounted) {
+      setState(() {
+        _name = AuthService.displayName;
+        _showWelcome = !shown;
+      });
+    }
   }
 
   Future<void> _loadDashboard() async {
@@ -153,7 +157,7 @@ class _Pagina2State extends State<Pagina2> {
                         ),
                         ValueListenableBuilder<List<StudySession>>(
                           valueListenable: StudySessionStore.sessions,
-                          builder: (_, sessions, __) => _StatCard(
+                          builder: (_, sessions, _) => _StatCard(
                             width: statCardWidth,
                             icon: Icons.timer_outlined,
                             value: _focusToday(sessions),
@@ -496,7 +500,9 @@ class _ActionCard extends StatelessWidget {
     final compact = width < 180;
     return SizedBox(
     width: width,
-    height: compact ? 210 : 230,
+    // Em telas pequenas, títulos e descrições de três linhas precisam de
+    // alguns pixels extras para que o botão "Abrir" não transborde.
+    height: compact ? 224 : 230,
     child: Material(
       color: Pagina2.surface,
       borderRadius: BorderRadius.circular(20),

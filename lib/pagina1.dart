@@ -61,7 +61,7 @@ class _Pagina1State extends State<Pagina1> {
                 child: _loading ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF061B1A))) : const Text('Entrar', style: TextStyle(fontWeight: FontWeight.w800)),
               ),
               const SizedBox(height: 18),
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Wrap(alignment: WrapAlignment.center, crossAxisAlignment: WrapCrossAlignment.center, children: [
                 const Text('Ainda não tem uma conta?', style: TextStyle(color: Color(0xFFB4CBC6))),
                 TextButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaginaCadastro())), child: const Text('Cadastre-se')),
               ]),

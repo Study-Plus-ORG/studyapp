@@ -21,10 +21,12 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
     try {
       final results = await Future.wait([StudyRepository.getSubjects(), StudyRepository.getTasks()]);
       final subjects = results[0]; final tasks = results[1];
-      if (mounted) setState(() {
-        _subjects = subjects.length; _completedSubjects = subjects.where((item) => item['concluida'] == true).length;
-        _tasks = tasks.length; _completedTasks = tasks.where((item) => item['concluida'] == true).length;
-      });
+      if (mounted) {
+        setState(() {
+          _subjects = subjects.length; _completedSubjects = subjects.where((item) => item['concluida'] == true).length;
+          _tasks = tasks.length; _completedTasks = tasks.where((item) => item['concluida'] == true).length;
+        });
+      }
     } catch (_) {}
   }
 
@@ -38,7 +40,7 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.all(36),
       build: (_) => [
-        pw.Text('Study — Relatório de estudos', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+        pw.Text('Study - Relatório de estudos', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 6),
         pw.Text('Período: ${_dateLabel(start)} a ${_dateLabel(now)}'),
         pw.Divider(),
@@ -57,13 +59,25 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
         pw.Text('Sessões concluídas', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 8),
         if (weekSessions.isEmpty) pw.Text('Nenhuma sessão concluída neste período.') else
-          pw.Table.fromTextArray(
+          pw.TableHelper.fromTextArray(
             headers: const ['Data', 'Duração'],
             data: weekSessions.reversed.map((item) => [_dateTimeLabel(item.finishedAt), _formatDuration(item.duration)]).toList(),
           ),
       ],
     ));
-    await Printing.sharePdf(bytes: await document.save(), filename: 'relatorio-estudos-${now.year}-${now.month.toString().padLeft(2, '0')}.pdf');
+    try {
+      await Printing.sharePdf(
+        bytes: await document.save(),
+        filename:
+            'relatorio-estudos-${now.year}-${now.month.toString().padLeft(2, '0')}.pdf',
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível exportar o relatório em PDF.')),
+        );
+      }
+    }
   }
 
   @override
@@ -77,7 +91,9 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
         final weekFocus = days.fold(Duration.zero, (total, day) => total + StudySessionStore.focusOn(day, sessions));
         final sessionCount = days.fold(0, (total, day) => total + StudySessionStore.completedOn(day, sessions));
         return Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 900), child: ListView(padding: const EdgeInsets.all(20), children: [
-          Row(children: [const Expanded(child: Text('Seu progresso', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800))), FilledButton.icon(onPressed: () => _exportReport(sessions), icon: const Icon(Icons.picture_as_pdf_rounded), label: const Text('Exportar PDF'))]),
+          LayoutBuilder(builder: (context, constraints) => constraints.maxWidth < 500
+              ? Wrap(spacing: 12, runSpacing: 12, crossAxisAlignment: WrapCrossAlignment.center, children: [const Text('Seu progresso', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)), FilledButton.icon(onPressed: () => _exportReport(sessions), icon: const Icon(Icons.picture_as_pdf_rounded), label: const Text('Gerar PDF'))])
+              : Row(children: [const Expanded(child: Text('Seu progresso', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800))), FilledButton.icon(onPressed: () => _exportReport(sessions), icon: const Icon(Icons.picture_as_pdf_rounded), label: const Text('Gerar PDF'))])),
           const SizedBox(height: 6),
           const Text('Acompanhe as sessões concluídas no Pomodoro e o andamento da sua rotina.', style: TextStyle(color: Color(0xFFB4CBC6))),
           const SizedBox(height: 24),
