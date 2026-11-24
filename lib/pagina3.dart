@@ -84,8 +84,10 @@ class _Pagina3State extends State<Pagina3> {
     );
     final name = controller.text.trim();
     final planning = planningController.text.trim();
-    controller.dispose();
-    planningController.dispose();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.dispose();
+      planningController.dispose();
+    });
     if (saved != true || name.isEmpty) return;
     try {
       if (subject == null) {
