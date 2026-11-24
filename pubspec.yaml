@@ -52,6 +52,7 @@ flutter_native_splash:
 flutter:
   uses-material-design: true
   assets:
+    - .env
     - assets/svgs/
     - assets/images/textodoseuparagrafo.png
     - assets/images/logo_mobile.png
